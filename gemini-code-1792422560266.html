@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VibeBrew｜互動式手沖咖啡智慧沖煮助手</title>
+  <style>
+    :root {
+      --bg-dark: #16120f;
+      --bg-card: #231c18;
+      --bg-panel: #2d241e;
+      --accent: #d48c46;
+      --accent-light: #f0b26a;
+      --accent-glow: rgba(212, 140, 70, 0.25);
+      --text-main: #f5ebe6;
+      --text-muted: #b5a397;
+      --border: #3d312a;
+      --success: #5cb88a;
+      --warning: #e6a23c;
+      --danger: #e06c75;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top right, #2c211b 0%, var(--bg-dark) 65%);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 24px 16px 48px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding-bottom: 20px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), #9e581c);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      box-shadow: 0 4px 15px var(--accent-glow);
+    }
+
+    .brand h1 {
+      font-size: 1.55rem;
+      letter-spacing: 0.5px;
+    }
+
+    .brand p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .header-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .badge-btn {
+      background: var(--bg-panel);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .badge-btn:hover {
+      border-color: var(--accent);
+      background: #382c25;
+    }
+
+    .badge-btn.active {
+      background: var(--accent-glow);
+      border-color: var(--accent);
+      color: var(--accent-light);
+    }
+
+    .grid-main {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 22px;
+    }
+
+    @media (max-width: 880px) {
+      .grid-main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      margin-bottom: 22px;
+    }
+
+    .card-title {
+      font-size: 1.12rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--accent-light);
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+      color: var(--text-muted);
+    }
+
+    .form-label strong {
+      color: var(--text-main);
+      font-size: 1rem;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .pill-group {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .pill-btn {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 10px 8px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .pill-btn:hover {
+      border-color: var(--accent);
+      color: var(--text-main);
+    }
+
+    .pill-btn.selected {
+      background: linear-gradient(135deg, rgba(212, 140, 70, 0.28), rgba(158, 88, 28, 0.25));
+      border-color: var(--accent);
+      color: var(--accent-light);
+      font-weight: 600;
+    }
+
+    .summary-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      background: var(--bg-panel);
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin-top: 12px;
+    }
+
+    .metric-box {
+      text-align: center;
+    }
+
+    .metric-box .label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .metric-box .val {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--accent-light);
+      margin-top: 2px;
+    }
+
+    .tip-banner {
+      margin-top: 14px;
+      padding: 11px 14px;
+      border-radius: 10px;
+      background: rgba(212, 140, 70, 0.1);
+      border-left: 3px solid var(--accent);
+      font-size: 0.84rem;
+      color: #e6d6c9;
+    }
+
+    .brewer-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: var(--bg-panel);
+      border-radius: 14px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      position: relative;
+    }
+
+    .stage-badge {
+      background: var(--accent-glow);
+      color: var(--accent-light);
+      border: 1px solid var(--accent);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .timer-display {
+      font-size: 3.1rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 2px;
+      line-height: 1.1;
+      margin: 4px 0 8px;
+    }
+
+    .live-targets {
+      display: flex;
+      gap: 24px;
+      margin: 8px 0 14px;
+      font-size: 0.92rem;
+    }
+
+    .live-targets span strong {
+      color: var(--accent-light);
+      font-size: 1.15rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .svg-container {
+      width: 180px;
+      height: 155px;
+      margin: 4px 0 10px;
+    }
+
+    .progress-bar-wrap {
+      width: 100%;
+      height: 10px;
+      background: #1a1411;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 10px 0 16px;
+      border: 1px solid var(--border);
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-light));
+      transition: width 0.25s linear;
+    }
+
+    .timer-actions {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      border-color: var(--accent);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #b56b26);
+      border-color: var(--accent-light);
+      color: #fff;
+      min-width: 130px;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.08);
+    }
+
+    .steps-list {
+      margin-top: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .step-item {
+      display: grid;
+      grid-template-columns: 76px 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      border-radius: 10px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      font-size: 0.88rem;
+      transition: all 0.2s;
+    }
+
+    .step-item.active {
+      border-color: var(--accent);
+      background: rgba(212, 140, 70, 0.16);
+      transform: translateX(3px);
+    }
+
+    .step-item.done {
+      opacity: 0.55;
+      border-color: var(--success);
+    }
+
+    .step-time {
+      font-variant-numeric: tabular-nums;
+      color: var(--accent-light);
+      font-weight: 600;
+    }
+
+    .step-weight {
+      font-weight: 700;
+      color: var(--text-main);
+      background: var(--bg-card);
+      padding: 4px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+
+    @media (max-width: 880px) {
+      .bottom-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .tuner-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .tuner-tag {
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+
+    .tuner-tag.selected {
+      background: var(--accent-glow);
+      border-color: var(--accent);
+      color: var(--accent-light);
+      font-weight: 600;
+    }
+
+    .diagnosis-box {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 0.9rem;
+    }
+
+    .log-form {
+      display: grid;
+      grid-template-columns: 1fr 110px auto;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .input-text, .select-box {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+    }
+
+    .log-list {
+      max-height: 210px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .log-entry {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 0.84rem;
+    }
+
+    .del-btn {
+      background: transparent;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+      font-size: 0.82rem;
+      padding: 4px 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="brand-icon">☕</div>
+        <div>
+          <h1>VibeBrew 手沖咖啡智慧沖煮助手</h1>
+          <p>動態粉水比計算・濾杯流速曲線・分段注水視覺化導航</p>
+        </div>
+      </div>
+      <div class="header-controls">
+        <button id="soundToggleBtn" class="badge-btn active" onclick="toggleSound()">
+          🔊 階段提示音：開啟
+        </button>
+        <button class="badge-btn" onclick="loadDemoPreset()">
+          ✨ 載入經典耶加雪菲參數
+        </button>
+      </div>
+    </header>
+
+    <div class="grid-main">
+      <!-- 左側：沖煮參數設定 -->
+      <section class="card">
+        <div class="card-title">
+          <span>1. 沖煮參數與濾杯設定</span>
+          <span style="font-size:0.8rem; color:var(--text-muted)">即時連動分段注水計畫</span>
+        </div>
+
+        <div class="form-group">
+          <div class="form-label">
+            <span>咖啡豆粉重 (Dose)</span>
+            <strong id="beanWeightLabel">20 g</strong>
+          </div>
+          <input type="range" id="beanWeightInput" min="10" max="35" step="1" value="20" oninput="updateRecipe()" />
+        </div>
+
+        <div class="form-group">
+          <div class="form-label">
+            <span>粉水比例 (Brew Ratio)</span>
+            <strong id="ratioLabel">1 : 15</strong>
+          </div>
+          <input type="range" id="ratioInput" min="12" max="18" step="0.5" value="15" oninput="updateRecipe()" />
+        </div>
+
+        <div class="form-group">
+          <div class="form-label"><span>濾杯材質與流速特性 (Dripper Type)</span></div>
+          <div class="pill-group" id="dripperGroup">
+            <button class="pill-btn selected" data-dripper="v60" onclick="selectDripper('v60')">錐形濾紙 (V60)</button>
+            <button class="pill-btn" data-dripper="ceramic" onclick="selectDripper('ceramic')">多孔陶瓷濾杯</button>
+            <button class="pill-btn" data-dripper="wave" onclick="selectDripper('wave')">平底波浪濾杯</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="form-label"><span>烘焙度設定 (Roast Level)</span></div>
+          <div class="pill-group" id="roastGroup">
+            <button class="pill-btn selected" data-roast="light" onclick="selectRoast('light')">淺焙 (花果調)</button>
+            <button class="pill-btn" data-roast="medium" onclick="selectRoast('medium')">中焙 (堅果甜感)</button>
+            <button class="pill-btn" data-roast="dark" onclick="selectRoast('dark')">深焙 (醇厚焦糖)</button>
+          </div>
+        </div>
+
+        <div class="summary-metrics">
+          <div class="metric-box">
+            <div class="label">目標總水量</div>
+            <div class="val" id="totalWaterVal">300 ml</div>
+          </div>
+          <div class="metric-box">
+            <div class="label">建議水溫</div>
+            <div class="val" id="tempVal">92 °C</div>
+          </div>
+          <div class="metric-box">
+            <div class="label">建議研磨度</div>
+            <div class="val" id="grindVal">中細</div>
+          </div>
+          <div class="metric-box">
+            <div class="label">預估總時間</div>
+            <div class="val" id="totalTimeVal">02:15</div>
+          </div>
+        </div>
+
+        <div class="tip-banner" id="dripperTip">
+          💡 <strong>錐形濾紙 (V60) 提示：</strong>流速較快、層次鮮明，建議中心小水柱穩定繞圈，避免直接沖刷濾紙邊緣。
+        </div>
+      </section>
+
+      <!-- 右側：互動計時與分段導航 -->
+      <section class="card">
+        <div class="card-title">
+          <span>2. 互動式沖煮計時與注水導航</span>
+          <span id="statusIndicator" style="font-size:0.82rem; color:var(--text-muted)">待機準備中</span>
+        </div>
+
+        <div class="brewer-stage">
+          <div class="stage-badge" id="currentStageTitle">準備開始：請先溫杯並歸零電子秤</div>
+          <div class="timer-display" id="timerDisplay">00:00</div>
+
+          <div class="live-targets">
+            <span>即時目標秤重：<strong id="liveWeightTarget">0 g</strong></span>
+            <span>本段剩餘：<strong id="stageRemainTime">-- 秒</strong></span>
+          </div>
+
+          <!-- 動態 SVG 濾杯與液面高度 -->
+          <div class="svg-container">
+            <svg viewBox="0 0 200 165" width="100%" height="100%">
+              <defs>
+                <clipPath id="dripperClip">
+                  <polygon points="45,25 155,25 122,115 78,115" />
+                </clipPath>
+              </defs>
+              <line id="waterStream" x1="100" y1="0" x2="100" y2="95" stroke="#6ec6ff" stroke-width="4" stroke-dasharray="6,6" opacity="0">
+                <animate attributeName="stroke-dashoffset" from="12" to="0" dur="0.35s" repeatCount="indefinite" />
+              </line>
+              <g clip-path="url(#dripperClip)">
+                <rect x="40" y="25" width="120" height="95" fill="#1b1410" />
+                <rect id="waterLevelRect" x="40" y="115" width="120" height="95" fill="url(#coffeeGrad)" />
+              </g>
+              <linearGradient id="coffeeGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#d48c46" stop-opacity="0.85" />
+                <stop offset="100%" stop-color="#592e12" stop-opacity="0.95" />
+              </linearGradient>
+              <polygon points="45,25 155,25 122,115 78,115" fill="none" stroke="#d48c46" stroke-width="3.5" stroke-linejoin="round" />
+              <line x1="65" y1="118" x2="135" y2="118" stroke="#b5a397" stroke-width="3" />
+              <path d="M72,120 L62,156 L138,156 L128,120 Z" fill="rgba(212,140,70,0.12)" stroke="#b5a397" stroke-width="2" />
+            </svg>
+          </div>
+
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" id="progressBar"></div>
+          </div>
+
+          <div class="timer-actions">
+            <button class="btn btn-primary" id="startPauseBtn" onclick="toggleTimer()">▶ 開始沖煮</button>
+            <button class="btn" onclick="nextStageSkip()">⏭ 跳下一段</button>
+            <button class="btn" onclick="resetTimer()">↺ 重置</button>
+          </div>
+        </div>
+
+        <div class="steps-list" id="stepsList"></div>
+      </section>
+    </div>
+
+    <!-- 下方：風味微調診斷器 & 本地沖煮日誌 -->
+    <div class="bottom-grid">
+      <section class="card">
+        <div class="card-title">
+          <span>3. 沖煮後風味診斷與參數微調助手</span>
+          <span style="font-size:0.8rem; color:var(--text-muted)">點選口感自動推算調整方案</span>
+        </div>
+        <div class="tuner-tags" id="tunerTags">
+          <button class="tuner-tag selected" onclick="diagnoseFlavor('balanced', this)">✨ 酸甜均衡剛好</button>
+          <button class="tuner-tag" onclick="diagnoseFlavor('sour', this)">🍋 尖酸・萃取不足</button>
+          <button class="tuner-tag" onclick="diagnoseFlavor('bitter', this)">🍫 苦澀・過度萃取</button>
+          <button class="tuner-tag" onclick="diagnoseFlavor('watery', this)">💧 口感偏淡・水感重</button>
+          <button class="tuner-tag" onclick="diagnoseFlavor('clogged', this)">⏳ 流速過慢・積水</button>
+        </div>
+        <div class="diagnosis-box" id="diagnosisBox">
+          <strong>診斷結果：黃金萃取區間！</strong><br />
+          目前的粉水比與水溫配置非常適合這支豆子，建議直接將下方參數儲存至沖煮日誌。
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-title">
+          <span>4. 個人手沖日誌 (LocalStorage 紀錄)</span>
+          <button class="badge-btn" style="padding:4px 10px; font-size:0.78rem;" onclick="clearAllLogs()">清空紀錄</button>
+        </div>
+        <div class="log-form">
+          <input type="text" id="beanNameInput" class="input-text" placeholder="輸入豆單名稱（例：衣索比亞 水洗耶加）" />
+          <select id="ratingInput" class="select-box">
+            <option value="⭐⭐⭐⭐⭐">⭐⭐⭐⭐⭐</option>
+            <option value="⭐⭐⭐⭐">⭐⭐⭐⭐</option>
+            <option value="⭐⭐⭐">⭐⭐⭐</option>
+          </select>
+          <button class="btn btn-primary" style="min-width:auto; padding:9px 14px;" onclick="saveBrewLog()">＋ 儲存紀錄</button>
+        </div>
+        <div class="log-list" id="logList"></div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    let state = {
+      beanWeight: 20,
+      ratio: 15,
+      dripper: 'v60',
+      roast: 'light',
+      soundEnabled: true,
+      timerRunning: false,
+      elapsedSeconds: 0,
+      timerId: null,
+      stages: [],
+      lastAnnouncedStage: -1
+    };
+
+    const dripperConfig = {
+      v60: {
+        name: '錐形濾紙 (V60)',
+        totalSeconds: 135,
+        grindMod: '中細研磨',
+        tip: '💡 <strong>錐形濾紙 (V60) 提示：</strong>流速較快、酸質明亮，建議中心小水柱穩定繞圈，避免直接沖刷濾紙邊緣。',
+        ratios: [0.16, 0.44, 0.74, 1.0],
+        times: [ [0, 30], [30, 65], [65, 100], [100, 135] ]
+      },
+      ceramic: {
+        name: '多孔陶瓷濾杯',
+        totalSeconds: 150,
+        grindMod: '中粗研磨 (免濾紙)',
+        tip: '💡 <strong>多孔陶瓷濾杯提示：</strong>無須濾紙、能保留豐富咖啡油脂 (Body)，建議研磨略粗以維持順暢流速，沖後以清水逆沖保養。',
+        ratios: [0.15, 0.42, 0.72, 1.0],
+        times: [ [0, 35], [35, 75], [75, 115], [115, 150] ]
+      },
+      wave: {
+        name: '平底波浪濾杯',
+        totalSeconds: 140,
+        grindMod: '中度研磨',
+        tip: '💡 <strong>平底波浪濾杯提示：</strong>底部平整受熱均勻、甜感飽滿，容錯率高，適合溫柔穩定注水。',
+        ratios: [0.17, 0.46, 0.75, 1.0],
+        times: [ [0, 32], [32, 68], [68, 105], [105, 140] ]
+      }
+    };
+
+    const roastConfig = {
+      light: { temp: 92, label: '淺焙' },
+      medium: { temp: 90, label: '中焙' },
+      dark: { temp: 87, label: '深焙' }
+    };
+
+    function playBeep(freq = 660, duration = 0.16) {
+      if (!state.soundEnabled) return;
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        gain.gain.setValueAtTime(0.15, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function toggleSound() {
+      state.soundEnabled = !state.soundEnabled;
+      const btn = document.getElementById('soundToggleBtn');
+      btn.textContent = state.soundEnabled ? '🔊 階段提示音：開啟' : '🔇 階段提示音：靜音';
+      btn.classList.toggle('active', state.soundEnabled);
+      if (state.soundEnabled) playBeep(740, 0.12);
+    }
+
+    function selectDripper(type) {
+      state.dripper = type;
+      document.querySelectorAll('#dripperGroup .pill-btn').forEach(btn => {
+        btn.classList.toggle('selected', btn.dataset.dripper === type);
+      });
+      resetTimer();
+      updateRecipe();
+    }
+
+    function selectRoast(level) {
+      state.roast = level;
+      document.querySelectorAll('#roastGroup .pill-btn').forEach(btn => {
+        btn.classList.toggle('selected', btn.dataset.roast === level);
+      });
+      updateRecipe();
+    }
+
+    function formatTime(sec) {
+      const m = String(Math.floor(sec / 60)).padStart(2, '0');
+      const s = String(sec % 60).padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+    function updateRecipe() {
+      state.beanWeight = parseFloat(document.getElementById('beanWeightInput').value);
+      state.ratio = parseFloat(document.getElementById('ratioInput').value);
+
+      const totalWater = Math.round(state.beanWeight * state.ratio);
+      const dConf = dripperConfig[state.dripper];
+      const rConf = roastConfig[state.roast];
+
+      document.getElementById('beanWeightLabel').textContent = `${state.beanWeight} g`;
+      document.getElementById('ratioLabel').textContent = `1 : ${state.ratio}`;
+      document.getElementById('totalWaterVal').textContent = `${totalWater} ml`;
+      document.getElementById('tempVal').textContent = `${rConf.temp} °C`;
+      document.getElementById('grindVal').textContent = dConf.grindMod.split(' ')[0];
+      document.getElementById('totalTimeVal').textContent = formatTime(dConf.totalSeconds);
+      document.getElementById('dripperTip').innerHTML = dConf.tip;
+
+      const stageTitles = [
+        '第 1 段：悶蒸排氣 (Bloom)',
+        '第 2 段：前段香氣萃取',
+        '第 3 段：中段甜感與醇厚度',
+        '第 4 段：尾段收尾與滴濾完成'
+      ];
+
+      const stageDescs = [
+        '由中心向外均勻浸濕咖啡粉層，等待氣泡釋放',
+        '中心硬幣大小繞圈注水，帶出明亮花果調性',
+        '穩定柔水柱繞圈，建立焦糖甜感與主體結構',
+        '中心定點注水至目標總水量，等待全數滴濾'
+      ];
+
+      let prevTarget = 0;
+      state.stages = dConf.ratios.map((r, idx) => {
+        const targetWeight = Math.round(totalWater * r);
+        const added = targetWeight - prevTarget;
+        const startSec = dConf.times[idx][0];
+        const endSec = dConf.times[idx][1];
+        const item = {
+          index: idx,
+          title: stageTitles[idx],
+          desc: stageDescs[idx],
+          startSec,
+          endSec,
+          addedWater: added,
+          targetWeight
+        };
+        prevTarget = targetWeight;
+        return item;
+      });
+
+      renderSteps();
+      updateTimerUI();
+    }
+
+    function renderSteps() {
+      const container = document.getElementById('stepsList');
+      container.innerHTML = state.stages.map((st) => {
+        const isCurrent = state.timerRunning && state.elapsedSeconds >= st.startSec && state.elapsedSeconds < st.endSec;
+        const isDone = state.elapsedSeconds >= st.endSec;
+        return `
+          <div class="step-item ${isCurrent ? 'active' : ''} ${isDone ? 'done' : ''}">
+            <div class="step-time">${formatTime(st.startSec)}-${formatTime(st.endSec)}</div>
+            <div>
+              <div style="font-weight:600; color:var(--text-main)">${st.title}</div>
+              <div style="font-size:0.78rem; color:var(--text-muted)">${st.desc}（本段 +${st.addedWater}g）</div>
+            </div>
+            <div class="step-weight">目標 ${st.targetWeight}g</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateTimerUI() {
+      const dConf = dripperConfig[state.dripper];
+      const totalSec = dConf.totalSeconds;
+      const sec = state.elapsedSeconds;
+
+      document.getElementById('timerDisplay').textContent = formatTime(sec);
+      const pct = Math.min(100, (sec / totalSec) * 100);
+      document.getElementById('progressBar').style.width = `${pct}%`;
+
+      const waterY = 115 - (pct * 0.78);
+      document.getElementById('waterLevelRect').setAttribute('y', waterY);
+      document.getElementById('waterStream').setAttribute('opacity', state.timerRunning && sec < totalSec ? '1' : '0');
+
+      const curStage = state.stages.find(s => sec >= s.startSec && sec < s.endSec);
+      if (sec === 0 && !state.timerRunning) {
+        document.getElementById('currentStageTitle').textContent = '準備開始：請先溫杯並歸零電子秤';
+        document.getElementById('liveWeightTarget').textContent = '0 g';
+        document.getElementById('stageRemainTime').textContent = '-- 秒';
+        document.getElementById('statusIndicator').textContent = '待機準備中';
+      } else if (curStage) {
+        if (state.lastAnnouncedStage !== curStage.index && state.timerRunning) {
+          state.lastAnnouncedStage = curStage.index;
+          playBeep(curStage.index === 0 ? 580 : 780, 0.2);
+        }
+        document.getElementById('currentStageTitle').textContent = curStage.title;
+        const remain = curStage.endSec - sec;
+        document.getElementById('stageRemainTime').textContent = `${remain} 秒`;
+        document.getElementById('statusIndicator').textContent = `沖煮進行中 (${curStage.index + 1}/4)`;
+
+        const prevW = curStage.index === 0 ? 0 : state.stages[curStage.index - 1].targetWeight;
+        const stageProgress = (sec - curStage.startSec) / (curStage.endSec - curStage.startSec);
+        const liveW = Math.round(prevW + (curStage.targetWeight - prevW) * stageProgress);
+        document.getElementById('liveWeightTarget').textContent = `${liveW} g`;
+      } else if (sec >= totalSec) {
+        document.getElementById('currentStageTitle').textContent = '🎉 沖煮完成！請移開濾杯並搖勻咖啡液享用';
+        const totalWater = Math.round(state.beanWeight * state.ratio);
+        document.getElementById('liveWeightTarget').textContent = `${totalWater} g`;
+        document.getElementById('stageRemainTime').textContent = '0 秒';
+        document.getElementById('statusIndicator').textContent = '萃取完成';
+      }
+
+      renderSteps();
+    }
+
+    function toggleTimer() {
+      const btn = document.getElementById('startPauseBtn');
+      const dConf = dripperConfig[state.dripper];
+
+      if (state.timerRunning) {
+        clearInterval(state.timerId);
+        state.timerRunning = false;
+        btn.textContent = '▶ 繼續沖煮';
+      } else {
+        if (state.elapsedSeconds >= dConf.totalSeconds) {
+          state.elapsedSeconds = 0;
+          state.lastAnnouncedStage = -1;
+        }
+        state.timerRunning = true;
+        btn.textContent = '⏸ 暫停計時';
+        updateTimerUI();
+        state.timerId = setInterval(() => {
+          state.elapsedSeconds++;
+          updateTimerUI();
+          if (state.elapsedSeconds >= dripperConfig[state.dripper].totalSeconds) {
+            clearInterval(state.timerId);
+            state.timerRunning = false;
+            btn.textContent = '▶ 重新沖煮';
+            playBeep(880, 0.35);
+          }
+        }, 1000);
+      }
+      updateTimerUI();
+    }
+
+    function nextStageSkip() {
+      const curStage = state.stages.find(s => state.elapsedSeconds >= s.startSec && state.elapsedSeconds < s.endSec);
+      if (curStage && curStage.index < state.stages.length - 1) {
+        state.elapsedSeconds = state.stages[curStage.index + 1].startSec;
+        updateTimerUI();
+      } else if (state.elapsedSeconds === 0 && state.stages.length > 1) {
+        state.elapsedSeconds = state.stages[1].startSec;
+        updateTimerUI();
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(state.timerId);
+      state.timerRunning = false;
+      state.elapsedSeconds = 0;
+      state.lastAnnouncedStage = -1;
+      document.getElementById('startPauseBtn').textContent = '▶ 開始沖煮';
+      updateTimerUI();
+    }
+
+    function loadDemoPreset() {
+      document.getElementById('beanWeightInput').value = 18;
+      document.getElementById('ratioInput').value = 15.5;
+      document.getElementById('beanNameInput').value = '衣索比亞 耶加雪菲 日曬 G1';
+      selectDripper('ceramic');
+      selectRoast('light');
+      playBeep(820, 0.14);
+    }
+
+    function diagnoseFlavor(type, btnEl) {
+      document.querySelectorAll('#tunerTags .tuner-tag').forEach(b => b.classList.remove('selected'));
+      btnEl.classList.add('selected');
+      const box = document.getElementById('diagnosisBox');
+
+      const map = {
+        balanced: {
+          title: '診斷結果：黃金萃取區間！',
+          text: '目前的粉水比與水溫配置非常契合，酸甜感與醇厚度平衡，建議將此參數存入右側沖煮日誌。'
+        },
+        sour: {
+          title: '診斷結果：前段酸質過強（萃取率偏低）',
+          text: '建議下一次沖煮：<strong>① 研磨度調細半格</strong>、<strong>② 水溫提高 1~2°C</strong>，或將悶蒸時間延長 5 秒以提升完整萃取。'
+        },
+        bitter: {
+          title: '診斷結果：尾段苦澀雜味明顯（過度萃取）',
+          text: '建議下一次沖煮：<strong>① 研磨度調粗半格</strong>、<strong>② 水溫降低 2°C</strong>，並在第 4 段注水時改用中心大水柱加速收尾。'
+        },
+        watery: {
+          title: '診斷結果：醇厚度不足（粉水比偏高或通道效應）',
+          text: '建議下一次沖煮：將粉水比由目前的設定收斂至 <strong>1:13.5 ～ 1:14</strong>，或切換為「多孔陶瓷濾杯」保留更多油脂感。'
+        },
+        clogged: {
+          title: '診斷結果：細粉堵塞導致流速過慢',
+          text: '建議下一次沖煮：<strong>調粗研磨刻度</strong>、減少繞圈擾動幅度；若使用多孔陶瓷濾杯，請定期以小蘇打或活氧酵素熱水逆洗暢通毛細孔。'
+        }
+      };
+
+      box.innerHTML = `<strong>${map[type].title}</strong><br />${map[type].text}`;
+    }
+
+    function getLogs() {
+      try {
+        return JSON.parse(localStorage.getItem('vibebrew_logs') || '[]');
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function renderLogs() {
+      const logs = getLogs();
+      const listEl = document.getElementById('logList');
+      if (logs.length === 0) {
+        listEl.innerHTML = `<div style="color:var(--text-muted); font-size:0.84rem; text-align:center; padding:18px;">尚無沖煮紀錄，點擊上方「＋ 儲存紀錄」即可保存參數。</div>`;
+        return;
+      }
+      listEl.innerHTML = logs.map((item, idx) => `
+        <div class="log-entry">
+          <div>
+            <strong>${item.name}</strong> <span style="color:var(--accent-light)">${item.rating}</span><br />
+            <span style="color:var(--text-muted)">${item.dripper}｜${item.bean}g → ${item.water}ml (1:${item.ratio})｜${item.temp}°C</span>
+          </div>
+          <button class="del-btn" onclick="deleteLog(${idx})">刪除</button>
+        </div>
+      `).join('');
+    }
+
+    function saveBrewLog() {
+      const nameInput = document.getElementById('beanNameInput');
+      const beanName = nameInput.value.trim() || '日常精選手沖單品';
+      const rating = document.getElementById('ratingInput').value;
+      const logs = getLogs();
+      logs.unshift({
+        name: beanName,
+        rating,
+        bean: state.beanWeight,
+        ratio: state.ratio,
+        water: Math.round(state.beanWeight * state.ratio),
+        dripper: dripperConfig[state.dripper].name,
+        temp: roastConfig[state.roast].temp
+      });
+      localStorage.setItem('vibebrew_logs', JSON.stringify(logs));
+      nameInput.value = '';
+      renderLogs();
+      playBeep(700, 0.12);
+    }
+
+    function deleteLog(idx) {
+      const logs = getLogs();
+      logs.splice(idx, 1);
+      localStorage.setItem('vibebrew_logs', JSON.stringify(logs));
+      renderLogs();
+    }
+
+    function clearAllLogs() {
+      localStorage.removeItem('vibebrew_logs');
+      renderLogs();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (getLogs().length === 0) {
+        localStorage.setItem('vibebrew_logs', JSON.stringify([
+          {
+            name: '衣索比亞 耶加雪菲 水洗 G1',
+            rating: '⭐⭐⭐⭐⭐',
+            bean: 20,
+            ratio: 15,
+            water: 300,
+            dripper: '多孔陶瓷濾杯',
+            temp: 92
+          }
+        ]));
+      }
+      updateRecipe();
+      renderLogs();
+    });
+  </script>
+</body>
+</html>
